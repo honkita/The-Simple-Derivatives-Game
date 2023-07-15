@@ -1,14 +1,15 @@
 -- using elm/random
 -- https://package.elm-lang.org/packages/elm/random/1.0.0/
 
-module MathPrototype exposing (..)
-import Elm.MathLatex
-import Elm.DerivativesHint
-import Elm.GameInstructions
+module MathPrototype exposing (Model)
+import MathLatex exposing (..)
+import DerivativesHint
+import GameInstructions
 import GraphicSVG
 import GraphicSVG.EllieApp exposing (..)
 import GraphicSVG.App
 import Html exposing (Html)
+import Random
 
 myTitle = "Prototype"
 
@@ -123,14 +124,14 @@ inve colour invert blind =
             otherwise -> colour
 colours c = 
   case c of 
-      Red -> (rgb 200 0 0)
-      Charcoal -> (rgb 28 28 28)
-      White -> (rgb 245 245 245)
-      Green -> green
-      Blue -> blue
-      Purple -> purple
-      Orange -> (rgb 221 127 29)
-      NeonPink -> (rgb 209 49 127)
+      Red -> (GraphicSVG.rgb 200 0 0)
+      Charcoal -> (GraphicSVG.rgb 28 28 28)
+      White -> (GraphicSVG.rgb 245 245 245)
+      Green -> GraphicSVG.green
+      Blue -> GraphicSVG.blue
+      Purple -> GraphicSVG.purple
+      Orange -> (GraphicSVG.rgb 221 127 29)
+      NeonPink -> (GraphicSVG.rgb 209 49 127)
       
 
 type ChangeColour = 
@@ -193,26 +194,26 @@ calculator coefs expo start =
 
 
 grid model = 
-  group[
-      rect 0.5 80
-        |> filled (colours (inve Charcoal model.dark model.colourBlind))
-        |> move (offsetx, offsety)
+  GraphicSVG.group[
+      GraphicSVG.rect 0.5 80
+        |> GraphicSVG.filled (colours (inve Charcoal model.dark model.colourBlind))
+        |> GraphicSVG.move (offsetx, offsety)
       ,
-       rect 80 0.5
-        |> filled (colours (inve Charcoal model.dark model.colourBlind))
-        |> move (offsetx, offsety)
+       GraphicSVG.rect 80 0.5
+        |> GraphicSVG.filled (colours (inve Charcoal model.dark model.colourBlind))
+        |> GraphicSVG.move (offsetx, offsety)
      
   ]
 
 box model = 
-  group[
-       square 80
-        |> outlined (solid 3) (colours (inve Charcoal model.dark model.colourBlind))
-        |> move (offsetx, offsety)
+  GraphicSVG.group[
+       GraphicSVG.square 80
+        |> GraphicSVG.outlined (GraphicSVG.solid 3) (colours (inve Charcoal model.dark model.colourBlind))
+        |> GraphicSVG.move (offsetx, offsety)
   ]
   
 grapherN coefs expo start model c =
-    group[
+    GraphicSVG.group[
       printcircle coefs expo start model c
       
     ]
@@ -220,26 +221,26 @@ grapherN coefs expo start model c =
 values model = 
   if model.exit == False then 
       [
-        text ("x: " ++ String.fromFloat(truncate((model.currentx - offsetx)/model.zoom)))
-        |> customFont "Comic Sans MS"
-        |> size 5
-        |> filled (colours (inve Orange model.dark model.colourBlind))
-        |> move (15, -24)
+        GraphicSVG.text ("x: " ++ String.fromFloat(truncate((model.currentx - offsetx)/model.zoom)))
+        |> GraphicSVG.customFont "Comic Sans MS"
+        |> GraphicSVG.size 5
+        |> GraphicSVG.filled (colours (inve Orange model.dark model.colourBlind))
+        |> GraphicSVG.move (15, -24)
         ,
-        text ("y: " ++ String.fromFloat(truncate(calculator model.randCoefs 4 ((model.currentx - offsetx)/model.zoom))))
-        |> customFont "Comic Sans MS"
-        |> size 5
-        |> filled (colours (inve Orange model.dark model.colourBlind))
-        |> move (15, -32)
+        GraphicSVG.text ("y: " ++ String.fromFloat(truncate(calculator model.randCoefs 4 ((model.currentx - offsetx)/model.zoom))))
+        |> GraphicSVG.customFont "Comic Sans MS"
+        |> GraphicSVG.size 5
+        |> GraphicSVG.filled (colours (inve Orange model.dark model.colourBlind))
+        |> GraphicSVG.move (15, -32)
       ]
       ++
       if model.showAnswer == True then 
           [
-            text ("Slope: " ++ String.fromFloat(truncate(calculator (derivativePow model.randCoefs (formList 4)) 3 ((model.currentx - offsetx)/l))))
-              |> customFont "Comic Sans MS"
-              |> size 5
-              |> filled (colours (inve Orange model.dark model.colourBlind))
-              |> move (15, -40)
+            GraphicSVG.text ("Slope: " ++ String.fromFloat(truncate(calculator (derivativePow model.randCoefs (formList 4)) 3 ((model.currentx - offsetx)/l))))
+              |> GraphicSVG.customFont "Comic Sans MS"
+              |> GraphicSVG.size 5
+              |> GraphicSVG.filled (colours (inve Orange model.dark model.colourBlind))
+              |> GraphicSVG.move (15, -40)
           ]
      else []
   else []  
@@ -251,14 +252,14 @@ display model =
       Question -> 
         let p = [
                   grapherN model.randCoefs 4 (-40 / model.zoom) model White
-                    |> addOutline (solid 1) (colours (inve White model.dark model.colourBlind))
+                    |> GraphicSVG.addOutline (GraphicSVG.solid 1) (colours (inve White model.dark model.colourBlind))
                   ,
                   grapherN model.randCoefs 4 (-40 / model.zoom) model Red 
                  ]
             q = (points model.randCoefs 4 (-40 / model.zoom) model) in
             q
             |> List.map2
-            ( \ x y -> x |> notifyMouseDownAt (Mouse y) 
+            ( \ x y -> x |> GraphicSVG.notifyMouseDownAt (Mouse y) 
             ) p
       otherwise -> []
 
@@ -268,8 +269,8 @@ l = 2
 offsetx = 50
 offsety = -10
 printcircle coefs expo start model c = 
-    openPolygon (points coefs expo start model)
-        |> outlined (solid (model.zoom / 3)) (colours (inve c model.dark model.colourBlind))
+    GraphicSVG.openPolygon (points coefs expo start model)
+        |> GraphicSVG.outlined (GraphicSVG.solid (model.zoom / 3)) (colours (inve c model.dark model.colourBlind))
 
 
 points coefs expo start model =
@@ -491,140 +492,137 @@ whichonept3 model =
   else if model.colourBlind == True then GameInstructions.b1
   else GameInstructions.init1
 
-view : Model -> Collage Msg
-view model = collage 192 128 (myShapes model)
+view model = GraphicSVG.collage 192 128 (myShapes model)
 
 myShapes model = 
     case model.state of
       Home ->
           [
-              square 1000
-              |> filled (colours (inve White model.dark model.colourBlind))
+              GraphicSVG.square 1000
+              |> GraphicSVG.filled (colours (inve White model.dark model.colourBlind))
               ,
-              text "The Simple Derivatives Game"
-              |> customFont "Comic Sans MS"
-              |> size 10
-              |> centered
-              |> filled (colours (inve Orange model.dark model.colourBlind))
-              |> move (0, 40)
+              GraphicSVG.text "The Simple Derivatives Game"
+              |> GraphicSVG.customFont "Comic Sans MS"
+              |> GraphicSVG.size 10
+              |> GraphicSVG.centered
+              |> GraphicSVG.filled (colours (inve Orange model.dark model.colourBlind))
+              |> GraphicSVG.move (0, 40)
               ,
-              group [
-              roundedRect 60 20 5
-                |> filled (colours (inve White model.dark model.colourBlind))
-                |> addOutline (solid 1) (colours (inve Orange model.dark model.colourBlind))
+              GraphicSVG.group [
+              GraphicSVG.roundedRect 60 20 5
+                |> GraphicSVG.filled (colours (inve White model.dark model.colourBlind))
+                |> GraphicSVG.addOutline (GraphicSVG.solid 1) (colours (inve Orange model.dark model.colourBlind))
               ,
-              text "Play"
-              |> customFont "Comic Sans MS"
-              |> size 10
-              |> centered
-              |> filled (colours (inve Orange model.dark model.colourBlind))
-              |> move (0, -2)
+              GraphicSVG.text "Play"
+              |> GraphicSVG.customFont "Comic Sans MS"
+              |> GraphicSVG.size 10
+              |> GraphicSVG.centered
+              |> GraphicSVG.filled (colours (inve Orange model.dark model.colourBlind))
+              |> GraphicSVG.move (0, -2)
               ]
-                |> move(-35, -20)
-                |> notifyTap (Tut False)
+                |> GraphicSVG.move(-35, -20)
+                |> GraphicSVG.notifyTap (Tut False)
                 
               ,
-              group [
-              roundedRect 60 20 5
-                |> filled (colours (inve White model.dark model.colourBlind))
-                |> addOutline (solid 1) (colours (inve Orange model.dark model.colourBlind))
+              GraphicSVG.group [
+              GraphicSVG.roundedRect 60 20 5
+                |> GraphicSVG.filled (colours (inve White model.dark model.colourBlind))
+                |> GraphicSVG.addOutline (GraphicSVG.solid 1) (colours (inve Orange model.dark model.colourBlind))
               ,
-              text "Freeplay"
-              |> customFont "Comic Sans MS"
-              |> size 10
-              |> centered
-              |> filled (colours (inve Orange model.dark model.colourBlind))
-              |> move (0, -2)
+              GraphicSVG.text "Freeplay"
+              |> GraphicSVG.customFont "Comic Sans MS"
+              |> GraphicSVG.size 10
+              |> GraphicSVG.centered
+              |> GraphicSVG.filled (colours (inve Orange model.dark model.colourBlind))
+              |> GraphicSVG.move (0, -2)
               ]
-                |> move(35, -20)
-                |> notifyTap (Tut True)
+                |> GraphicSVG.move(35, -20)
+                |> GraphicSVG.notifyTap (Tut True)
                 
              ,
-             group [
-              roundedRect 60 20 5
-                |> filled (colours (inve White model.dark model.colourBlind))
-                |> addOutline (solid 1) (colours (inve Orange model.dark model.colourBlind))
+             GraphicSVG.group [
+              GraphicSVG.roundedRect 60 20 5
+                |> GraphicSVG.filled (colours (inve White model.dark model.colourBlind))
+                |> GraphicSVG.addOutline (GraphicSVG.solid 1) (colours (inve Orange model.dark model.colourBlind))
               ,
-              text "Settings"
-              |> customFont "Comic Sans MS"
-              |> size 10
-              |> centered
-              |> filled (colours (inve Orange model.dark model.colourBlind))
-              |> move (0, -2)
+              GraphicSVG.text "Settings"
+              |> GraphicSVG.customFont "Comic Sans MS"
+              |> GraphicSVG.size 10
+              |> GraphicSVG.centered
+              |> GraphicSVG.filled (colours (inve Orange model.dark model.colourBlind))
+              |> GraphicSVG.move (0, -2)
               ]
-                |> move(-35, -45)
-                |> notifyTap ChangeSettings
+                |> GraphicSVG.move(-35, -45)
+                |> GraphicSVG.notifyTap ChangeSettings
               
              ,
-             group [
-              roundedRect 60 20 5
-                |> filled (colours (inve White model.dark model.colourBlind))
-                |> addOutline (solid 1) (colours (inve Orange model.dark model.colourBlind))
+             GraphicSVG.group [
+              GraphicSVG.roundedRect 60 20 5
+                |> GraphicSVG.filled (colours (inve White model.dark model.colourBlind))
+                |> GraphicSVG.addOutline (GraphicSVG.solid 1) (colours (inve Orange model.dark model.colourBlind))
               ,
-              text "Help"
-              |> customFont "Comic Sans MS"
-              |> size 10
-              |> centered
-              |> filled (colours (inve Orange model.dark model.colourBlind))
-              |> move (0, -2)
+              GraphicSVG.text "Help"
+              |> GraphicSVG.customFont "Comic Sans MS"
+              |> GraphicSVG.size 10
+              |> GraphicSVG.centered
+              |> GraphicSVG.filled (colours (inve Orange model.dark model.colourBlind))
+              |> GraphicSVG.move (0, -2)
               ]
-                |> move(35, -45)
-                |> notifyTap Hints 
+                |> GraphicSVG.move(35, -45)
+                |> GraphicSVG.notifyTap Hints 
              ]   
              
              
       Results ->
           [
-              square 1000
-              |> filled (colours (inve White model.dark model.colourBlind))
+              GraphicSVG.square 1000
+              |> GraphicSVG.filled (colours (inve White model.dark model.colourBlind))
               ,
-              text "You Lost All Your Lives"
-              |> customFont "Comic Sans MS"
-              |> centered
-              |> filled (colours (inve Orange model.dark model.colourBlind))
-              |> move (0, 40)
+              GraphicSVG.text "You Lost All Your Lives"
+              |> GraphicSVG.customFont "Comic Sans MS"
+              |> GraphicSVG.centered
+              |> GraphicSVG.filled (colours (inve Orange model.dark model.colourBlind))
+              |> GraphicSVG.move (0, 40)
               ,
-              text "Correctly Answered"
-              |> customFont "Comic Sans MS"
-              |> size 7
-              |> filled (colours (inve Orange model.dark model.colourBlind))
-              |> move (-60, 17)
+              GraphicSVG.text "Correctly Answered"
+              |> GraphicSVG.customFont "Comic Sans MS"
+              |> GraphicSVG.size 7
+              |> GraphicSVG.filled (colours (inve Orange model.dark model.colourBlind))
+              |> GraphicSVG.move (-60, 17)
               ,
-              text (String.fromInt model.correct)
-                |> customFont "Comic Sans MS"
-                |> size 7
-                |> filled (colours (inve Orange model.dark model.colourBlind))
-                |> move (60, 17)
+              GraphicSVG.text (String.fromInt model.correct)
+                |> GraphicSVG.customFont "Comic Sans MS"
+                |> GraphicSVG.size 7
+                |> GraphicSVG.filled (colours (inve Orange model.dark model.colourBlind))
+                |> GraphicSVG.move (60, 17)
               ,
               home 20 -50 model
               ,
-              back -20 -50 model
-              ,
-              notte |> scale 0.25 |> move (40,0)            
+              back -20 -50 model       
               
           ]
       Settings ->
           [
-              square 1000
-              |> filled (colours (inve White model.dark model.colourBlind))
+              GraphicSVG.square 1000
+              |> GraphicSVG.filled (colours (inve White model.dark model.colourBlind))
               ,
-              text "Settings"
-              |> customFont "Comic Sans MS"
-              |> centered
-              |> filled (colours (inve Orange model.dark model.colourBlind))
-              |> move (0, 40)
+              GraphicSVG.text "Settings"
+              |> GraphicSVG.customFont "Comic Sans MS"
+              |> GraphicSVG.centered
+              |> GraphicSVG.filled (colours (inve Orange model.dark model.colourBlind))
+              |> GraphicSVG.move (0, 40)
               ,
-              text "Dark Mode"
-              |> customFont "Comic Sans MS"
-              |> size 7
-              |> filled (colours (inve Orange model.dark model.colourBlind))
-              |> move (-60, 17)
+              GraphicSVG.text "Dark Mode"
+              |> GraphicSVG.customFont "Comic Sans MS"
+              |> GraphicSVG.size 7
+              |> GraphicSVG.filled (colours (inve Orange model.dark model.colourBlind))
+              |> GraphicSVG.move (-60, 17)
               ,
-              text "Colourblind Mode"
-              |> customFont "Comic Sans MS"
-              |> size 7
-              |> filled (colours (inve Orange model.dark model.colourBlind))
-              |> move (-60, -3)
+              GraphicSVG.text "Colourblind Mode"
+              |> GraphicSVG.customFont "Comic Sans MS"
+              |> GraphicSVG.size 7
+              |> GraphicSVG.filled (colours (inve Orange model.dark model.colourBlind))
+              |> GraphicSVG.move (-60, -3)
               ,
               blindButton 60 0 model
               ,
@@ -636,35 +634,35 @@ myShapes model =
       Question ->
           let (Q a b c) = model.question in
            [
-                group[
-                  square 1000
-                  |> filled (colours (inve White model.dark model.colourBlind))
+                GraphicSVG.group[
+                  GraphicSVG.square 1000
+                  |> GraphicSVG.filled (colours (inve White model.dark model.colourBlind))
                   ,
-                  roundedRect 80 20 10
-                  |> filled (darkBlue)
-                  |> move (-50, 45)
+                  GraphicSVG.roundedRect 80 20 10
+                  |> GraphicSVG.filled (GraphicSVG.darkBlue)
+                  |> GraphicSVG.move (-50, 45)
                   ,
                   printer -80 40 model.randCoefs (formList 4) 6 5 True model
-                  |> group                
+                  |> GraphicSVG.group                
                   ,
-                  text (a)
-                  |> customFont "Comic Sans MS"
-                  |> size 6
-                  |> filled (colours White)            
-                  |> move (-85, 48)
+                  GraphicSVG.text (a)
+                  |> GraphicSVG.customFont "Comic Sans MS"
+                  |> GraphicSVG.size 6
+                  |> GraphicSVG.filled (colours White)            
+                  |> GraphicSVG.move (-85, 48)
                   ,
                   scoreBoard model
                   --graph
                   ,
-                  group[
+                  GraphicSVG.group[
                     grid model
                     ,
-                    display model |> group
+                    display model |> GraphicSVG.group
                     ,
                     box model
                   ]
                   ,
-                  values model |> group
+                  values model |> GraphicSVG.group
                   , 
                   buttons model.displayAnswers 5 model.questionInt model --buttons for answers
                   ,
@@ -678,34 +676,34 @@ myShapes model =
                   home 0 -55 model
                   , 
                   --zoom buttons
-                  zoomButtons model |> group
-                  ] |> notifyMouseUp Exited
+                  zoomButtons model |> GraphicSVG.group
+                  ] |> GraphicSVG.notifyMouseUp Exited
                   --,
-                  --ballGraph model Red|> group
+                  --ballGraph model Red|> GraphicSVG.group
                   
              ] 
              ++
              if model.showAnswer == True then 
                  [
-                   roundedRect 60 10 5
-                       |> filled (colours (inve (correctnessCol model.right) model.dark model.colourBlind))
-                       |> move (-50, 25)
+                   GraphicSVG.roundedRect 60 10 5
+                       |> GraphicSVG.filled (colours (inve (correctnessCol model.right) model.dark model.colourBlind))
+                       |> GraphicSVG.move (-50, 25)
                    ,
                    printer -70 24 (derivativePow model.randCoefs (formList 4)) (formList 3) 5 (toFloat(List.length model.randCoefs)) True model
-                       |> group
+                       |> GraphicSVG.group
                        
                    ,
-                   text (correctness model.right) 
-                       |> customFont "Comic Sans MS"
-                       |> alignRight
-                       |> size 8
-                       |> filled (colours White)
-                       |> move (-23, 22)
+                   GraphicSVG.text (correctness model.right) 
+                       |> GraphicSVG.customFont "Comic Sans MS"
+                       |> GraphicSVG.alignRight
+                       |> GraphicSVG.size 8
+                       |> GraphicSVG.filled (colours White)
+                       |> GraphicSVG.move (-23, 22)
                    ,
-                   group[
+                   GraphicSVG.group[
                    grapherN (derivativePow model.randCoefs (formList 4)) (3) (-40 / model.zoom) model Blue
                    ,
-                   display model |> group
+                   display model |> GraphicSVG.group
                    ,
                    box model
                    
@@ -721,34 +719,25 @@ myShapes model =
               [(DerivativesHint.myShapes model.derivativesHint
                       |> List.map
                     (GraphicSVG.map DerivativesHint)
-                 ) |> group]
+                 ) |> GraphicSVG.group]
           otherwise -> []
               
       Tutorial -> 
               [(GameInstructions.myShapes model.instructions
                       |> List.map
                     (GraphicSVG.map Instructions)
-                 ) |> group]
+                 ) |> GraphicSVG.group]
                  
       otherwise  -> []
-
-
-
-notte = html 200 200 ( Html.img [HA.width (200), HA.height (200)
-                                 , HA.align "centered"
-                                 , HA.src "https://user-images.githubusercontent.com/57504343/163655233-4d591ca3-bdb5-4f78-af08-1b81dd40bbdc.jpg"
-                                 ]
-                                 []
-                      ) 
 
 ballGraph model col = 
   if model.exit == False && (calculator model.randCoefs 4 ((model.currentx - offsetx)/model.zoom)) * model.zoom <= 40 
       && (calculator model.randCoefs 4 ((model.currentx - offsetx)/model.zoom)) * model.zoom >= -40
       then
       [
-      circle (model.zoom / 2 + 1)
-      |> filled (colours (inve col model.dark model.colourBlind))
-      |> move (model.currentx, (calculator model.randCoefs 4 ((model.currentx - offsetx)/model.zoom)) * model.zoom + offsety)
+      GraphicSVG.circle (model.zoom / 2 + 1)
+      |> GraphicSVG.filled (colours (inve col model.dark model.colourBlind))
+      |> GraphicSVG.move (model.currentx, (calculator model.randCoefs 4 ((model.currentx - offsetx)/model.zoom)) * model.zoom + offsety)
       ]  
   else []      
       
@@ -760,33 +749,33 @@ zoomButtons model =
   [
     --zoom in
     if model.zoom /= 5 then
-      group[
-        ci Orange model |> scale 0.5
+      GraphicSVG.group[
+        ci Orange model |> GraphicSVG.scale 0.5
         , 
-        text "+" 
-          |> customFont "Comic Sans MS"
-          |> centered
-          |> size 4
-          |> filled (colours (inve Orange model.dark model.colourBlind))
-          |> move (0, -1)
-      ] |> move (81, 23) |> notifyTap (Zoom 1)
-    else group[]
+        GraphicSVG.text "+" 
+          |> GraphicSVG.customFont "Comic Sans MS"
+          |> GraphicSVG.centered
+          |> GraphicSVG.size 4
+          |> GraphicSVG.filled (colours (inve Orange model.dark model.colourBlind))
+          |> GraphicSVG.move (0, -1)
+      ] |> GraphicSVG.move (81, 23) |> GraphicSVG.notifyTap (Zoom 1)
+    else GraphicSVG.group[]
   ]
   ++
   [
     --zoom out
     if model.zoom /= 1 then
-      group[
-        ci Orange model |> scale 0.5
+      GraphicSVG.group[
+        ci Orange model |> GraphicSVG.scale 0.5
         , 
-        text "-" 
-          |> customFont "Comic Sans MS"
-          |> centered
-          |> size 4
-          |> filled (colours (inve Orange model.dark model.colourBlind))
-          |> move (0, -1)
-      ] |> move (81, 13) |> notifyTap (Zoom -1)
-    else group[]
+        GraphicSVG.text "-" 
+          |> GraphicSVG.customFont "Comic Sans MS"
+          |> GraphicSVG.centered
+          |> GraphicSVG.size 4
+          |> GraphicSVG.filled (colours (inve Orange model.dark model.colourBlind))
+          |> GraphicSVG.move (0, -1)
+      ] |> GraphicSVG.move (81, 13) |> GraphicSVG.notifyTap (Zoom -1)
+    else GraphicSVG.group[]
   ]
 
 correctness x = if x then "✓" else "X"
@@ -796,98 +785,98 @@ correctnessCol x = if x then Green else Red
 heartShaker y lives model =
   if lives > 0 then
       [
-      group
+      GraphicSVG.group
       [
-          curve (0, -15) [
-                Pull (10, 0) (10, 0),
-                Pull (5, 11) (0, 0),
-                Pull (-5, 11) (-10, 0),
-                Pull (0, -15) (0, -15)] 
-            |> filled (colours (inve Red model.dark model.colourBlind))
+          GraphicSVG.curve (0, -15) [
+                GraphicSVG.Pull (10, 0) (10, 0),
+                GraphicSVG.Pull (5, 11) (0, 0),
+                GraphicSVG.Pull (-5, 11) (-10, 0),
+                GraphicSVG.Pull (0, -15) (0, -15)] 
+            |> GraphicSVG.filled (colours (inve Red model.dark model.colourBlind))
          ,
-         curve (0, -15) [
-                Pull (10, 0) (10, 0),
-                Pull (5, 11) (0, 0),
-                Pull (-5, 11) (-10, 0),
-                Pull (0, -15) (0, -15)] 
-            |> outlined (solid 1) (colours (inve Charcoal model.dark model.colourBlind))
-      ] |> scale 0.5 |> move (y, 45)
+         GraphicSVG.curve (0, -15) [
+                GraphicSVG.Pull (10, 0) (10, 0),
+                GraphicSVG.Pull (5, 11) (0, 0),
+                GraphicSVG.Pull (-5, 11) (-10, 0),
+                GraphicSVG.Pull (0, -15) (0, -15)] 
+            |> GraphicSVG.outlined (GraphicSVG.solid 1) (colours (inve Charcoal model.dark model.colourBlind))
+      ] |> GraphicSVG.scale 0.5 |> GraphicSVG.move (y, 45)
       ]
       ++
       heartShaker (y + 11) (lives - 1) model
   else []
 
 nextButton x y model = 
-  group [
-      roundedRect 40 10 5
-        |> filled (colours (inve White model.dark model.colourBlind))
-        |> addOutline (solid 1) (colours (inve (correctnessCol model.right) model.dark model.colourBlind))
+  GraphicSVG.group [
+      GraphicSVG.roundedRect 40 10 5
+        |> GraphicSVG.filled (colours (inve White model.dark model.colourBlind))
+        |> GraphicSVG.addOutline (GraphicSVG.solid 1) (colours (inve (correctnessCol model.right) model.dark model.colourBlind))
       ,
-      text "Next"
-        |> centered
-        |> customFont "Comic Sans MS"
-        |> size 6
-        |> filled (colours (inve (correctnessCol model.right) model.dark model.colourBlind))
-        |> move (0, -2)
-  ] |> move (x, y) |> notifyTap Next 
+      GraphicSVG.text "Next"
+        |> GraphicSVG.centered
+        |> GraphicSVG.customFont "Comic Sans MS"
+        |> GraphicSVG.size 6
+        |> GraphicSVG.filled (colours (inve (correctnessCol model.right) model.dark model.colourBlind))
+        |> GraphicSVG.move (0, -2)
+  ] |> GraphicSVG.move (x, y) |> GraphicSVG.notifyTap Next 
 
 
 home x y model = 
-  group [
+  GraphicSVG.group [
       ci Orange model
       ,
 
-      group[
-      polygon [(5, 0), (-5, 0), (0, 4)] |> filled (colours (inve Orange model.dark model.colourBlind))|> move (0, 0.5)
+      GraphicSVG.group[
+      GraphicSVG.polygon [(5, 0), (-5, 0), (0, 4)] |> GraphicSVG.filled (colours (inve Orange model.dark model.colourBlind))|> GraphicSVG.move (0, 0.5)
       ,
-      square 8 |> filled (colours (inve Orange model.dark model.colourBlind)) |> move (0, -3) 
+      GraphicSVG.square 8 |> GraphicSVG.filled (colours (inve Orange model.dark model.colourBlind)) |> GraphicSVG.move (0, -3) 
       ,
-      rect 2 4 |> filled (colours (inve White model.dark model.colourBlind)) |> move (0, -5) 
-      ] |> scale 0.75 |> move (0, 1)
+      GraphicSVG.rect 2 4 |> GraphicSVG.filled (colours (inve White model.dark model.colourBlind)) |> GraphicSVG.move (0, -5) 
+      ] |> GraphicSVG.scale 0.75 |> GraphicSVG.move (0, 1)
 
-  ] |> scale 0.8 |> move (x, y) |> notifyTap ToHome
+  ] |> GraphicSVG.scale 0.8 |> GraphicSVG.move (x, y) |> GraphicSVG.notifyTap ToHome
 
 back x y model = 
-    group [
+    GraphicSVG.group [
         ci Orange model,
-        group[
-          triangle 9 |> filled (colours (inve Orange model.dark model.colourBlind)) |> move (7, 0)
+        GraphicSVG.group[
+          GraphicSVG.triangle 9 |> GraphicSVG.filled (colours (inve Orange model.dark model.colourBlind)) |> GraphicSVG.move (7, 0)
           ,
-          square 8 |> filled (colours (inve Orange model.dark model.colourBlind)) |> move (-1, 0) 
-        ] |> rotate pi |> scale 0.4 |> move (2, 0) 
-    ] |> scale 0.8 |> move (x, y) |> notifyTap (Restart "Play")
+          GraphicSVG.square 8 |> GraphicSVG.filled (colours (inve Orange model.dark model.colourBlind)) |> GraphicSVG.move (-1, 0) 
+        ] |> GraphicSVG.rotate pi |> GraphicSVG.scale 0.4 |> GraphicSVG.move (2, 0) 
+    ] |> GraphicSVG.scale 0.8 |> GraphicSVG.move (x, y) |> GraphicSVG.notifyTap (Restart "Play")
 
 
 ci c model =
-  circle 7
-    |> filled (colours (inve White model.dark model.colourBlind))
-    |> addOutline (solid 1) (colours (inve c model.dark model.colourBlind))
+  GraphicSVG.circle 7
+    |> GraphicSVG.filled (colours (inve White model.dark model.colourBlind))
+    |> GraphicSVG.addOutline (GraphicSVG.solid 1) (colours (inve c model.dark model.colourBlind))
   
 
 scoreBoard model =
   if model.freeplay == True then
-    group[
-        roundedRect 80 10 5
-            |> filled (colours (inve Blue model.dark model.colourBlind))
-            |> move (55, -58)
+    GraphicSVG.group[
+        GraphicSVG.roundedRect 80 10 5
+            |> GraphicSVG.filled (colours (inve Blue model.dark model.colourBlind))
+            |> GraphicSVG.move (55, -58)
         ,
-        text ("Correct: " ++ String.fromInt model.correct) 
-        |> alignLeft
-        |> customFont "Comic Sans MS"
-        |> filled white
-        |> scale 0.5
-        |> move (20, -60)
+        GraphicSVG.text ("Correct: " ++ String.fromInt model.correct) 
+        |> GraphicSVG.alignLeft
+        |> GraphicSVG.customFont "Comic Sans MS"
+        |> GraphicSVG.filled GraphicSVG.white
+        |> GraphicSVG.scale 0.5
+        |> GraphicSVG.move (20, -60)
         ,
-        text ("Wrong: " ++ String.fromInt model.wrong) 
-        |> alignRight
-        |> customFont "Comic Sans MS"
-        |> filled white
-        |> scale 0.5
-        |> move (90, -60)
+        GraphicSVG.text ("Wrong: " ++ String.fromInt model.wrong) 
+        |> GraphicSVG.alignRight
+        |> GraphicSVG.customFont "Comic Sans MS"
+        |> GraphicSVG.filled GraphicSVG.white
+        |> GraphicSVG.scale 0.5
+        |> GraphicSVG.move (90, -60)
         ]
   else 
-    group[
-        heartShaker 20 (3 - model.wrong) model |> group
+    GraphicSVG.group[
+        heartShaker 20 (3 - model.wrong) model |> GraphicSVG.group
         ]
 
 buttons list start i model = 
@@ -896,28 +885,28 @@ buttons list start i model =
       case list of 
         a :: rest ->
             let (E pow coefs) = a in
-            group
+            GraphicSVG.group
             [
-              group [
-              roundedRect 70 15 2
-                |> filled (colours (inve Blue model.dark model.colourBlind))
-                |> move (-50, start)
+              GraphicSVG.group [
+              GraphicSVG.roundedRect 70 15 2
+                |> GraphicSVG.filled (colours (inve Blue model.dark model.colourBlind))
+                |> GraphicSVG.move (-50, start)
               ,
               printer -70 start coefs (formList pow) 5 (toFloat(List.length model.randCoefs)) True model
-                |> group
-           ] |> notifyTap (Answer (E pow coefs))
+                |> GraphicSVG.group
+           ] |> GraphicSVG.notifyTap (Answer (E pow coefs))
            , 
            buttons rest (start - 20) i model
            ]
 
         otherwise -> 
-           rect 0 0
-             |> filled (colours White)
-             |> move (-1000, -1000)
+           GraphicSVG.rect 0 0
+             |> GraphicSVG.filled (colours White)
+             |> GraphicSVG.move (-1000, -1000)
   else 
-           rect 0 0
-             |> filled (colours White)
-             |> move (-1000, -1000)
+           GraphicSVG.rect 0 0
+             |> GraphicSVG.filled (colours White)
+             |> GraphicSVG.move (-1000, -1000)
              
 --generate questions
 generate u = Random.generate  (identity) 
@@ -959,77 +948,77 @@ derivativePow listcoefs listpows =
 
 
 settings x y model = 
-  group[
+  GraphicSVG.group[
    ci Orange model
-        |> scale 0.8
+        |> GraphicSVG.scale 0.8
    ,
-   group [
-         circle 5.5
-         |> outlined (solid 3) (colours (inve Orange model.dark model.colourBlind)),
-         rect 3.5 4
-         |> filled (colours (inve Orange model.dark model.colourBlind))
-         |> move (0, 8),
-         rect 3.5 4
-         |> filled (colours (inve Orange model.dark model.colourBlind))
-         |> move (0, -8),
-         rect 3.5 4
-         |> filled (colours (inve Orange model.dark model.colourBlind))
-         |> rotate (degrees 90)
-         |> move (8, 0),
-         rect 3.5 4
-         |> filled (colours (inve Orange model.dark model.colourBlind))
-         |> rotate (degrees 90)
-         |> move (-8, 0),
-         rect 3.5 4
-         |> filled (colours (inve Orange model.dark model.colourBlind))
-         |> rotate (degrees -45)
-         |> move (6, 6),
-         rect 3.5 4
-         |> filled (colours (inve Orange model.dark model.colourBlind))
-         |> rotate (degrees -45)
-         |> move (-6, -6),
-         rect 3.5 4
-         |> filled (colours (inve Orange model.dark model.colourBlind))
-         |> rotate (degrees 45)
-         |> move (-6, 6),
-         rect 3.5 4
-         |> filled (colours (inve Orange model.dark model.colourBlind))
-         |> rotate (degrees 45)
-         |> move (6, -6)] |> scale 0.4
+   GraphicSVG.group [
+         GraphicSVG.circle 5.5
+         |> GraphicSVG.outlined (GraphicSVG.solid 3) (colours (inve Orange model.dark model.colourBlind)),
+         GraphicSVG.rect 3.5 4
+         |> GraphicSVG.filled (colours (inve Orange model.dark model.colourBlind))
+         |> GraphicSVG.move (0, 8),
+         GraphicSVG.rect 3.5 4
+         |> GraphicSVG.filled (colours (inve Orange model.dark model.colourBlind))
+         |> GraphicSVG.move (0, -8),
+         GraphicSVG.rect 3.5 4
+         |> GraphicSVG.filled (colours (inve Orange model.dark model.colourBlind))
+         |> GraphicSVG.rotate (degrees 90)
+         |> GraphicSVG.move (8, 0),
+         GraphicSVG.rect 3.5 4
+         |> GraphicSVG.filled (colours (inve Orange model.dark model.colourBlind))
+         |> GraphicSVG.rotate (degrees 90)
+         |> GraphicSVG.move (-8, 0),
+         GraphicSVG.rect 3.5 4
+         |> GraphicSVG.filled (colours (inve Orange model.dark model.colourBlind))
+         |> GraphicSVG.rotate (degrees -45)
+         |> GraphicSVG.move (6, 6),
+         GraphicSVG.rect 3.5 4
+         |> GraphicSVG.filled (colours (inve Orange model.dark model.colourBlind))
+         |> GraphicSVG.rotate (degrees -45)
+         |> GraphicSVG.move (-6, -6),
+         GraphicSVG.rect 3.5 4
+         |> GraphicSVG.filled (colours (inve Orange model.dark model.colourBlind))
+         |> GraphicSVG.rotate (degrees 45)
+         |> GraphicSVG.move (-6, 6),
+         GraphicSVG.rect 3.5 4
+         |> GraphicSVG.filled (colours (inve Orange model.dark model.colourBlind))
+         |> GraphicSVG.rotate (degrees 45)
+         |> GraphicSVG.move (6, -6)] |> GraphicSVG.scale 0.4
          
         
          
-    ] |> move (x, y) |> notifyTap ChangeSettings
+    ] |> GraphicSVG.move (x, y) |> GraphicSVG.notifyTap ChangeSettings
        
 backButton x y model = 
-  group [
+  GraphicSVG.group [
       ci Orange model
       ,
-      triangle 4
-          |> filled (colours (inve Orange model.dark model.colourBlind))
-          |> move (1.5, 0)
+      GraphicSVG.triangle 4
+          |> GraphicSVG.filled (colours (inve Orange model.dark model.colourBlind))
+          |> GraphicSVG.move (1.5, 0)
       ,
-      rect 7 3
-          |> filled (colours (inve Orange model.dark model.colourBlind))
-          |> move (-0.75, 0)
-    ] |> rotate pi |> move (x, y) |> notifyTap (ToQuestion "Settings")
+      GraphicSVG.rect 7 3
+          |> GraphicSVG.filled (colours (inve Orange model.dark model.colourBlind))
+          |> GraphicSVG.move (-0.75, 0)
+    ] |> GraphicSVG.rotate pi |> GraphicSVG.move (x, y) |> GraphicSVG.notifyTap (ToQuestion "Settings")
 
 
 hintButton x y model = 
-  group [
+  GraphicSVG.group [
       ci Orange model
       ,
-      text "!"
-        |> centered
-        |> customFont "Comic Sans MS"
-        |> bold
-        |> size 10
-        |> filled (colours (inve Orange model.dark model.colourBlind))
-        |> move (0, -3)
+      GraphicSVG.text "!"
+        |> GraphicSVG.centered
+        |> GraphicSVG.customFont "Comic Sans MS"
+        |> GraphicSVG.bold
+        |> GraphicSVG.size 10
+        |> GraphicSVG.filled (colours (inve Orange model.dark model.colourBlind))
+        |> GraphicSVG.move (0, -3)
     ]
-      |> scale 0.8
-      |> move(x, y)
-      |> notifyTap Hints
+      |> GraphicSVG.scale 0.8
+      |> GraphicSVG.move(x, y)
+      |> GraphicSVG.notifyTap Hints
 
 formList x = 
     if x >= 0 then [x] ++ formList (x - 1)
@@ -1052,25 +1041,25 @@ printer x y coefs power fo terms addSign model=
           b :: rest1 ->
                if a /= 0 && b /= 0 then
                     [
-                      text (getSign a addSign) 
-                        |> centered 
-                        |> customFont "Comic Sans MS"
-                        |> size fo  
-                        |> filled (colours White)
-                        |> move (x - fo, y)
+                      GraphicSVG.text (getSign a addSign) 
+                        |> GraphicSVG.centered 
+                        |> GraphicSVG.customFont "Comic Sans MS"
+                        |> GraphicSVG.size fo  
+                        |> GraphicSVG.filled (colours White)
+                        |> GraphicSVG.move (x - fo, y)
                       ,
-                      text (valueString(abs(a)) ++ "x") 
-                        |> centered 
-                        |> customFont "Comic Sans MS"
-                        |> size fo  
-                        |> filled (colours White)
-                        |> move (x, y)
+                      GraphicSVG.text (valueString(abs(a)) ++ "x") 
+                        |> GraphicSVG.centered 
+                        |> GraphicSVG.customFont "Comic Sans MS"
+                        |> GraphicSVG.size fo  
+                        |> GraphicSVG.filled (colours White)
+                        |> GraphicSVG.move (x, y)
                       ,
-                      text (if b > 1 then String.fromInt(b) else "") 
-                        |> customFont "Comic Sans MS"
-                        |> size (fo / 2) 
-                        |> filled (colours White)
-                        |> move 
+                      GraphicSVG.text (if b > 1 then String.fromInt(b) else "") 
+                        |> GraphicSVG.customFont "Comic Sans MS"
+                        |> GraphicSVG.size (fo / 2) 
+                        |> GraphicSVG.filled (colours White)
+                        |> GraphicSVG.move 
                         (x + toFloat(String.length(valueString(abs(a)) ++ "x")) / 3 * fo, y + fo * 0.5)
                     ]
                     ++
@@ -1079,19 +1068,19 @@ printer x y coefs power fo terms addSign model=
                     
                  else if b == 0 then
                     [
-                      text (getSign a addSign) 
-                        |> centered 
-                        |> customFont "Comic Sans MS"
-                        |> size fo  
-                        |> filled (colours White)
-                        |> move (x - fo, y)
+                      GraphicSVG.text (getSign a addSign) 
+                        |> GraphicSVG.centered 
+                        |> GraphicSVG.customFont "Comic Sans MS"
+                        |> GraphicSVG.size fo  
+                        |> GraphicSVG.filled (colours White)
+                        |> GraphicSVG.move (x - fo, y)
                       ,
-                      text ((if a == 0 then "" else String.fromInt(abs a))) 
-                        |> centered 
-                        |> customFont "Comic Sans MS"
-                        |> size fo  
-                        |> filled (colours White)
-                        |> move (x, y)
+                      GraphicSVG.text ((if a == 0 then "" else String.fromInt(abs a))) 
+                        |> GraphicSVG.centered 
+                        |> GraphicSVG.customFont "Comic Sans MS"
+                        |> GraphicSVG.size fo  
+                        |> GraphicSVG.filled (colours White)
+                        |> GraphicSVG.move (x, y)
                      
                     ]
                     ++
@@ -1102,8 +1091,8 @@ printer x y coefs power fo terms addSign model=
              else []
                 
             
-          otherwise -> [circle 0 |> filled white |> move (1000, 1000)]                
-    otherwise -> [circle 0 |> filled white |> move (1000, 1000)]
+          otherwise -> [GraphicSVG.circle 0 |> GraphicSVG.filled GraphicSVG.white |> GraphicSVG.move (1000, 1000)]                
+    otherwise -> [GraphicSVG.circle 0 |> GraphicSVG.filled GraphicSVG.white |> GraphicSVG.move (1000, 1000)]
 
 derivative coefs ints = 
   case coefs of 
@@ -1125,51 +1114,51 @@ derivativePows ints =
 
       
 blindButton x y model = 
-   group [
-      roundedRect 40 20 10
-        |> filled (colours (inve White model.dark model.colourBlind))
-        |> addOutline (solid 1) (colours (inve Orange model.dark model.colourBlind))
+   GraphicSVG.group [
+      GraphicSVG.roundedRect 40 20 10
+        |> GraphicSVG.filled (colours (inve White model.dark model.colourBlind))
+        |> GraphicSVG.addOutline (GraphicSVG.solid 1) (colours (inve Orange model.dark model.colourBlind))
       ,
-      circle 8
-        |> filled (colours (inve Orange model.dark model.colourBlind))
-        |> addOutline (solid 1) (colours (inve Orange model.dark model.colourBlind))
-        |> move (if model.colourBlind  == True then (10, 0) else (-10, 0))
+      GraphicSVG.circle 8
+        |> GraphicSVG.filled (colours (inve Orange model.dark model.colourBlind))
+        |> GraphicSVG.addOutline (GraphicSVG.solid 1) (colours (inve Orange model.dark model.colourBlind))
+        |> GraphicSVG.move (if model.colourBlind  == True then (10, 0) else (-10, 0))
      ,
-     text (if model.colourBlind == True then "On" else "Off")
-        |> customFont "Comic Sans MS"
-        |> size 8
-        |> centered
-        |> filled (colours (inve Orange model.dark model.colourBlind)) 
-        |> move (if model.colourBlind  == True then (-10, -2) else (10, -2))
+     GraphicSVG.text (if model.colourBlind == True then "On" else "Off")
+        |> GraphicSVG.customFont "Comic Sans MS"
+        |> GraphicSVG.size 8
+        |> GraphicSVG.centered
+        |> GraphicSVG.filled (colours (inve Orange model.dark model.colourBlind)) 
+        |> GraphicSVG.move (if model.colourBlind  == True then (-10, -2) else (10, -2))
 
     ]
-      |> scale 0.8
-      |> move(x, y)
-      |> notifyTap (CSwap "colourblind")
+      |> GraphicSVG.scale 0.8
+      |> GraphicSVG.move(x, y)
+      |> GraphicSVG.notifyTap (CSwap "colourblind")
       
 
 darkButton x y model = 
-  group [
-      roundedRect 40 20 10
-        |> filled (colours (inve White model.dark model.colourBlind))
-        |> addOutline (solid 1) (colours (inve Orange model.dark model.colourBlind))
+  GraphicSVG.group [
+      GraphicSVG.roundedRect 40 20 10
+        |> GraphicSVG.filled (colours (inve White model.dark model.colourBlind))
+        |> GraphicSVG.addOutline (GraphicSVG.solid 1) (colours (inve Orange model.dark model.colourBlind))
       ,
-      circle 8
-        |> filled (colours (inve Orange model.dark model.colourBlind))
-        |> addOutline (solid 1) (colours (inve Orange model.dark model.colourBlind))
-        |> move (if model.dark == True then (10, 0) else (-10, 0))
+      GraphicSVG.circle 8
+        |> GraphicSVG.filled (colours (inve Orange model.dark model.colourBlind))
+        |> GraphicSVG.addOutline (GraphicSVG.solid 1) (colours (inve Orange model.dark model.colourBlind))
+        |> GraphicSVG.move (if model.dark == True then (10, 0) else (-10, 0))
      ,
-     text (if model.dark == True then "On" else "Off")
-        |> customFont "Comic Sans MS"
-        |> size 8
-        |> centered
-        |> filled (colours (inve Orange model.dark model.colourBlind)) 
-        |> move (if model.dark == True then (-10, -2) else (10, -2))
+     GraphicSVG.text (if model.dark == True then "On" else "Off")
+        |> GraphicSVG.customFont "Comic Sans MS"
+        |> GraphicSVG.size 8
+        |> GraphicSVG.centered
+        |> GraphicSVG.filled (colours (inve Orange model.dark model.colourBlind)) 
+        |> GraphicSVG.move (if model.dark == True then (-10, -2) else (10, -2))
 
     ]
-      |> scale 0.8
-      |> move(x, y)
-      |> notifyTap (CSwap "dark")
+      |> GraphicSVG.scale 0.8
+      |> GraphicSVG.move(x, y)
+      |> GraphicSVG.notifyTap (CSwap "dark")
 
 main : EllieAppWithTick () Model Msg
 main =
