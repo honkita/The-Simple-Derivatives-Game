@@ -1,4 +1,4 @@
-module Elm.GameInstructions exposing (..)
+module GameInstructions exposing (..)
 import Html exposing (Html)
 import GraphicSVG
 import GraphicSVG.App
