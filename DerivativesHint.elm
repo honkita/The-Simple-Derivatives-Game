@@ -1,4 +1,5 @@
-module Elm.DerivativesHint exposing (..)
+module DerivativesHint exposing (..)
+
 import Html exposing (Html)
 import GraphicSVG
 import GraphicSVG.App
@@ -301,7 +302,7 @@ page1 int model =
           ,
           GraphicSVG.text "Exponents" |> GraphicSVG.size 4 |> GraphicSVG.customFont "Comic Sans MS" |> GraphicSVG.filled (colours (inve Blue model.dark model.colourBlind)) |> GraphicSVG.move (20, 33) 
           ,
-          GraphicSVG.text "1" |> GraphicSVG.size 6 |> GraphicSVG.customFont "Comic Sans MS" |> GraphicSVG.filled (colours (inve Red model.dark model.colourBlind)) |> GraphicSVG.move (45, 35) 
+          GraphicSVG.text "1" |> GraphicSVG.size 6 |> GraphicSVG.customFont "Comic Sans MS" |> GraphicSVG.filled (colours (inve Charcoal model.dark model.colourBlind)) |> GraphicSVG.move (45, 35) 
           ,
           GraphicSVG.circle 2 |> GraphicSVG.outlined (GraphicSVG.solid 1) (colours (inve Blue model.dark model.colourBlind)) |> GraphicSVG.makeTransparent 0.75 |> GraphicSVG.move (68, 39)
           ,
