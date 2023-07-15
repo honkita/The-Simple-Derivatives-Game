@@ -1,4 +1,5 @@
-module Elm.MathLatex exposing (..)
+module MathLatex exposing (..)
+
 import GraphicSVG
 import GraphicSVG.App
 import Html exposing (Html)
