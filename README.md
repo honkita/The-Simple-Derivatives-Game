@@ -1,4 +1,4 @@
-# Math-App
+# The Simple Derivatives Game
 Math game from COMPSCI 1XD3
 The elm.json file must be run in main directory.
 
